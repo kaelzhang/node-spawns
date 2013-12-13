@@ -3,13 +3,16 @@
 var spawn   = require('child_process').spawn;
 var EE      = require('events').EventEmitter;
 var util    = require('util');
+var async   = require('async');
 
-function spawn (commands, options){
-    return new Spawn(commands, options);
+module.exports = spawns;
+
+function spawns (commands, options){
+    return new Spawns(commands, options);
 }
 
 // @param {Array.<string>} commands 
-function Spawn (commands, options){
+function Spawns (commands, options){
     if ( !util.isArray(commands) ) {
         commands = [commands];
     }
@@ -32,7 +35,7 @@ function Spawn (commands, options){
     });
 }
 
-util.inherits(Spawn, EE);
+util.inherits(Spawns, EE);
 
 // events for all processes
 // this.emit('close');
@@ -43,12 +46,13 @@ util.inherits(Spawn, EE);
 // this.emit('child_close');
 // this.emit('child_exit');
 
-Spawn.prototype._process = function() {
+Spawns.prototype._process = function() {
     var self = this;
-
-    async(this._commands.map(function (command) {
+    async.series(this._commands.map(function (command) {
         return function(done){
-            self._spawn(command, done);
+            if ( command.length === 1 ) {
+                self._spawn(command[0], done);
+            }
         };
         
     }), function (code, status) {
@@ -59,13 +63,13 @@ Spawn.prototype._process = function() {
 };
 
 
-// spawn a child command
+// spawns a child command
 // @param {Object} command {
 //      name:
 //      args:     
 // }
-Spawn.prototype._spawn = function(command, done) {
-    var child = spawn(command.name, command, this._options);
+Spawns.prototype._spawn = function(command, done) {
+    var child = spawn(command.name, command.args, this._options);
     var self = this;
 
     child.on('error', function (err) {
@@ -86,12 +90,12 @@ Spawn.prototype._spawn = function(command, done) {
 
 
 // @param {Array.<string>} commands
-Spawn.prototype._parse_commands = function(commands) {
+Spawns.prototype._parse_commands = function(commands) {
     return commands.map(this._parse_piped, this);
 };
 
 
-Spawn.prototype._parse_piped = function (command) {
+Spawns.prototype._parse_piped = function (command) {
     return command.split('|')
         .map(function (pipe) {
             return pipe.trim();
@@ -102,7 +106,7 @@ Spawn.prototype._parse_piped = function (command) {
 
 
 // @param {string} command
-Spawn.prototype._parse_command = function(command) {
+Spawns.prototype._parse_command = function(command) {
     var slices = command.split(/\s+/).map(function (slice) {
         return slice.trim();
     });
