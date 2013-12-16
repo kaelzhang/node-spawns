@@ -69,6 +69,8 @@ Spawns.prototype._process = function() {
 //      args:     
 // }
 Spawns.prototype._spawn = function(command, done) {
+    this.emit('spawn', command.origin);
+
     var child = spawn(command.name, command.args, this._options);
     var self = this;
 
@@ -114,8 +116,9 @@ Spawns.prototype._parse_command = function(command) {
     var name = slices.shift();
 
     return {
-        name : name,
-        args : slices
+        name    : name,
+        args    : slices,
+        origin  : command
     };
 };
 

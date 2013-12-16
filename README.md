@@ -43,7 +43,18 @@ type `Object`
 
 ## Events
 
+### Event: 'spawn'
+
+- command `String` the command string
+
+This event is emitted when a command is about to spawned.
+
 ### Event: 'close'
+
+- code `Number` the exit code, if it exited normally.
+- signal `String` the signal passed to kill the child process, if it was killed by the parent.
+
+This event is emitted when the stdio streams of **all child processes** have all terminated, or if there are any error encountered. This is distinct from 'exit', since multiple processes might share the same stdio streams.
 
 ### Event: 'exit'
 
@@ -53,6 +64,15 @@ type `Object`
 
 ### Event: 'error'
 
+- err `Error Object` the error.
+
+Emitted when:
+
+1. The process could not be spawned, or
+2. The process could not be killed, or
+3. Sending a message to the child process failed for whatever reason.
+
+Note that the exit-event may or may not fire after an error has occured. If you are listening on both events to fire a function, remember to guard against calling your function twice.
 
 
 
