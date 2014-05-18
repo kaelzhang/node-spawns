@@ -18,18 +18,19 @@ describe("spawns", function() {
   var proto = spawns.Spawns.prototype;
 
   // #4
-  var command = 'command -a "a \'b\' c" -b \'a "b" c\' -c "a b" -d \'a b\' -e "a" -f \'a\''
+  var command = 'command -a "a \'b\' c" -b \'a "b" c\' -c "a b" -d \'a b\' -e "a" -f \'a\' -g "a b c'
   it("double quoted: " + command, function(){
     var parsed = proto._parse_command(command);
 
     expect(parsed.name).to.equal('command');
     expect(parsed.args).to.deep.equal([
-      '-a', '"a \'b\' c"', 
-      '-b', "'a \"b\" c'", 
-      '-c', '"a b"',
-      '-d', "'a b'",
-      '-e', '"a"',
-      '-f', "'a'"
+      '-a', "a 'b' c", 
+      '-b', 'a "b" c', 
+      '-c', 'a b',
+      '-d', "a b",
+      '-e', 'a',
+      '-f', "a",
+      '-g', '"a', 'b', 'c'
     ]);
     expect(parsed.origin).to.equal(command);
   });

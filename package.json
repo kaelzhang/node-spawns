@@ -1,6 +1,6 @@
 {
   "name": "spawns",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Spawns could run a list of commands or piped commands.",
   "main": "index.js",
   "scripts": {

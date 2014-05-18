@@ -129,9 +129,18 @@ Spawns.prototype._parse_command = function(command) {
 
 var DOUBLE_QUOTE_START = /^".*[^"]$/;
 var DOUBLE_QUOTE_END = /"$/;
-
 var SINGLE_QUOTE_START = /^'.*[^']$/;
 var SINGLE_QUOTE_END = /'$/;
+
+// empty argument is allowed
+// git commit -a -m "" -> empty value is allow by bash, but git commit will fail
+var QUOTE_PAIR = /^(['"])(.*)\1$/;
+function trim (str) {
+  var match = str.match(QUOTE_PAIR);
+  return match
+    ? match[2]
+    : str;
+}
 
 // #4,
 // Deal with quotes
@@ -139,13 +148,21 @@ Spawns.prototype._balance_args = function(slices) {
   var double_quoted;
   var single_quoted;
   var stack = [];
-  return slices.reduce(function(prev, current) {
+  var max = slices.length - 1;
+  return slices.reduce(function(prev, current, index) {
     if (double_quoted) {
       stack.push(current);
       if (DOUBLE_QUOTE_END.test(current)) {
         double_quoted = false;
 
-        prev.push(stack.join(' '));
+        prev.push( trim(stack.join(' ')) );
+        stack.length = 0;
+
+      // -a "a b
+      // -> ['-a', '"a', 'b']
+      // balance quotes teminated
+      } else if (index === max) {
+        prev = prev.concat(stack);
         stack.length = 0;
       }
 
@@ -154,7 +171,11 @@ Spawns.prototype._balance_args = function(slices) {
       if (SINGLE_QUOTE_END.test(current)) {
         single_quoted = false;
 
-        prev.push(stack.join(' '));
+        prev.push( trim(stack.join(' ')) );
+        stack.length = 0;
+
+      } else if (index === max) {
+        prev = prev.concat(stack);
         stack.length = 0;
       }
 
@@ -165,11 +186,11 @@ Spawns.prototype._balance_args = function(slices) {
         double_quoted = true;
 
       } else if (SINGLE_QUOTE_START.test(current)) {
-        stack.push(current);
+        stack.push( current );
         single_quoted = true;
 
       } else {
-        prev.push(current);
+        prev.push( trim(current) );
       }
     }
 
