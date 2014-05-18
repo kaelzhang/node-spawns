@@ -47,7 +47,7 @@ type `Object`
 
 - command `String` the command string
 
-This event is emitted when a command is about to spawned.
+This event is emitted when each command is about to be spawned.
 
 ### Event: 'close'
 
