@@ -19,16 +19,17 @@ describe("spawns", function() {
   var proto = spawns.Spawns.prototype;
 
   // #4
-  var command = 'command -a "a \'b\' c" -b \'a "b" c\' -c "a b" -d \'a b\' -e "a" -f \'a\' -g "a b c'
+  var command = 'command -a "a \'b\' c" -b \'a "b" c\' -c'
+    + ' "a b" -d \'a   b\' -e "a" -f \'a\' -g "a b c'
   it("double quoted: " + command, function(){
-    var slices = command.split(/\s+/);
+    var slices = command.split(/\s/);
     slices.shift();
     var args = proto._balance_args(slices);
     expect(args).to.deep.equal([
       '-a', "a 'b' c", 
       '-b', 'a "b" c', 
       '-c', 'a b',
-      '-d', "a b",
+      '-d', "a   b",
       '-e', 'a',
       '-f', "a",
       '-g', '"a', 'b', 'c'
@@ -39,15 +40,42 @@ describe("spawns", function() {
 
 describe("cross-platform compatibility", function(){
   it("spawn a custom command", function(done){
-    var path = node_path.join(__dirname, './fixtures/command');
-    spawns([
-      path + ' --arg "a b c d"'
-    ]).on('close', function (code) {
-      expect(code).not.to.equal(0);
-      var file = node_path.join(__dirname, 'fixtures', 'arg.tmp')
-      var content = fs.readFileSync(file);
-      expect(content.toString()).to.equal('a b c d');
-      done();
+    var path = node_path.join(__dirname, './fixtures/command.js');
+    prepare_cmd(path, function (err, file) {
+      expect(err).to.equal(null);
+
+      spawns([
+        file + ' --arg "a b c d"'
+      ]).on('close', function (code) {
+        expect(code).not.to.equal(0);
+        var file = node_path.join(__dirname, 'fixtures', 'arg.tmp')
+        var content = fs.readFileSync(file);
+        expect(content.toString()).to.equal('a b c d');
+        done();
+      });
     });
+    
   });
 });
+
+
+var shim = require('cmd-shim');
+var tmp = require('tmp-sync');
+var is_windows = process.platform === 'win32';
+function prepare_cmd (path, callback) {
+  var dir = tmp.in(__dirname);
+  var to = node_path.join(dir, 'command');
+  if (is_windows) {
+    return cmdShim(path, to, function (err) {
+      if (err) {
+        return callback(err);
+      }
+
+      callback(null, to);
+    });
+  }
+
+  var content = fs.readFileSync(path);
+  fs.writeFileSync(to, content);
+  callback(null, to);
+};
