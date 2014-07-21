@@ -1,6 +1,6 @@
 {
   "name": "spawns",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Spawns could run a list of commands or piped commands.",
   "main": "index.js",
   "scripts": {
@@ -29,11 +29,11 @@
     "url": "https://github.com/kaelzhang/node-spawns/issues"
   },
   "devDependencies": {
-    "chai": "~1.8.0",
+    "chai": "^1.8.0",
     "minimist": "^0.2.0",
-    "mocha": "~1.13.0"
+    "mocha": "^1.13.0"
   },
   "dependencies": {
-    "async": "~0.2.9"
+    "async": "^0.9.0"
   }
 }
