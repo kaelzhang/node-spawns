@@ -1,6 +1,6 @@
 {
   "name": "spawns",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Spawns could run a list of commands or piped commands.",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,7 @@
     "url": "git://github.com/kaelzhang/node-spawns.git"
   },
   "keywords": [
+    "spawn",
     "spawns",
     "validator",
     "validate",
