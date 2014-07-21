@@ -1,6 +1,7 @@
 'use strict';
 
 var spawn = require('child_process').spawn;
+var win_spawn = require('win-spawn');
 var EE = require('events').EventEmitter;
 var util = require('util');
 var async = require('async');
@@ -27,7 +28,7 @@ function Spawns(commands, options) {
   //     // piped commands
   //     [command, command]
   // ]
-  this._commands = this._parse_commands(commands);
+  this._commands = commands || [];
   this._options = options;
   var self = this;
 
@@ -68,11 +69,7 @@ Spawns.prototype._process = function() {
 //      args:     
 // }
 Spawns.prototype._spawn = function(command, done) {
-  var child = spawn(
-    command.name, 
-    command.args, 
-    mix(command.options || {}, this._options, false)
-  );
+  var child = this._get_spawn(command);
   var self = this;
 
   child.on('error', function(err) {
@@ -92,49 +89,36 @@ Spawns.prototype._spawn = function(command, done) {
 };
 
 
-// @param {Array.<string>} commands
-Spawns.prototype._parse_commands = function(commands) {
-  return commands.map(this._parse_command, this);
+var is_windows = process.platform === 'win32';
+
+Spawns.prototype._get_spawn = function(command) {
+  if (!is_windows) {
+    return spawn('sh', ['-c', command], this._options);
+  }
+
+  var options = mix({
+    windowsVerbatimArguments: true
+  }, this._options);
+
+  var parsed = this._parse_command(command);
+  return win_spawn(parsed.name, parsed.args, options);
 };
 
 
-var is_windows = process.platform === 'win32';
-
-// @param {string} command
 Spawns.prototype._parse_command = function(command) {
-  // // #4,
-  // // We should reserve quoted spaces, so never use `/\s+/`
-  // var slices = command.split(/\s/).map(function(slice) {
-  //   return slice.trim();
-  // });
+  // #4,
+  // We should reserve quoted spaces, so never use `/\s+/`
+  var slices = command.split(/\s/).map(function(slice) {
+    return slice.trim();
+  });
 
-  // var name
-  // if (this._is_windows_spawn(slices)) {
-  //   name = '/c/cmd';
-  // } else {
-  //   name = slices.shift();
-  // }
+  var name = slices.shift();
 
-  // return {
-  //   name: name,
-  //   args: this._balance_args(slices),
-  //   origin: command
-  // };
-
-  return is_windows
-    ? {
-      name: 'cmd',
-      args: ['/c', command],
-      origin: command,
-      options: {
-        windowsVerbatimArguments: true
-      }
-    }
-    : {
-      name: 'sh',
-      args: ['-c', command],
-      origin: command
-    };
+  return {
+    name: name,
+    args: this._balance_args(slices),
+    origin: command
+  };
 };
 
 

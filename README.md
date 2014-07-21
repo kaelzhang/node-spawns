@@ -1,6 +1,8 @@
 # spawns [![NPM version](https://badge.fury.io/js/spawns.png)](http://badge.fury.io/js/spawns) [![Build Status](https://travis-ci.org/kaelzhang/node-spawns.png?branch=master)](https://travis-ci.org/kaelzhang/node-spawns) [![Dependency Status](https://gemnasium.com/kaelzhang/node-spawns.png)](https://gemnasium.com/kaelzhang/node-spawns)
 
-Spawns could run piped commands or a list of commands on both widnows and linux.
+I really hate to seperate the command and arguments when using `spawn`, and I hate to spawn things on Windows, so I made `spawns`.
+
+Spawns could run a list of commands on both widnows and linux.
 Spawns supports to execute commands with the similar API of `child_process.spawn`, using `options.stdio`, streamed `stdin` and `stdout`.
 
 # Synopsis
@@ -10,7 +12,7 @@ spawns(commands, options);
 ```
 
 ```js
-spawns(['npm install', 'grunt'], {
+spawns(['npm install', 'grunt --verbose'], {
 	stdio: 'inherit'
 
 }).on('close', function(code, signal){
