@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 var spawns = require('../');
 var node_path = require('path');
+var fs = require('fs');
 
 describe("spawns", function() {
   it("normal", function(done) {
@@ -43,6 +44,9 @@ describe("cross-platform compatibility", function(){
       path + ' --arg "a b c d"'
     ]).on('close', function (code) {
       expect(code).not.to.equal(0);
+      var file = node_path.join(__dirname, 'fixtures', 'arg.tmp')
+      var content = fs.readFileSync(file);
+      expect(content.toString()).to.equal('a b c d');
       done();
     });
   });
