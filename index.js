@@ -5,11 +5,12 @@ var EE = require('events').EventEmitter;
 var util = require('util');
 var async = require('async');
 var node_path = require('path');
+var mix = require('mix2');
 
 module.exports = spawns;
 
 function spawns(commands, options) {
-  return new Spawns(commands, options);
+  return new Spawns(commands, options || {});
 }
 spawns.Spawns = Spawns;
 
@@ -52,14 +53,10 @@ Spawns.prototype._process = function() {
   var self = this;
   async.series(this._commands.map(function(command) {
     return function(done) {
-      if (command.length === 1) {
-        self._spawn(command[0], done);
-      }
+      self._spawn(command, done);
     };
-
   }), function(code, status) {
     var last = status.pop();
-
     self.emit('close', last[0], last[1]);
   });
 };
@@ -71,9 +68,11 @@ Spawns.prototype._process = function() {
 //      args:     
 // }
 Spawns.prototype._spawn = function(command, done) {
-  this.emit('spawn', command.origin);
-
-  var child = spawn(command.name, command.args, this._options);
+  var child = spawn(
+    command.name, 
+    command.args, 
+    mix(command.options || {}, this._options, false)
+  );
   var self = this;
 
   child.on('error', function(err) {
@@ -95,17 +94,7 @@ Spawns.prototype._spawn = function(command, done) {
 
 // @param {Array.<string>} commands
 Spawns.prototype._parse_commands = function(commands) {
-  return commands.map(this._parse_piped, this);
-};
-
-
-Spawns.prototype._parse_piped = function(command) {
-  return command.split('|')
-    .map(function(pipe) {
-      return pipe.trim();
-    })
-    .filter(Boolean)
-    .map(this._parse_command, this);
+  return commands.map(this._parse_command, this);
 };
 
 
@@ -136,7 +125,10 @@ Spawns.prototype._parse_command = function(command) {
     ? {
       name: 'cmd',
       args: ['/c', command],
-      origin: command
+      origin: command,
+      options: {
+        windowsVerbatimArguments: true
+      }
     }
     : {
       name: 'sh',
