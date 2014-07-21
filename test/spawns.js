@@ -66,7 +66,7 @@ function prepare_cmd (path, callback) {
   var dir = tmp.in(__dirname);
   var to = node_path.join(dir, 'command');
   if (is_windows) {
-    return cmdShim(path, to, function (err) {
+    return shim(path, to, function (err) {
       if (err) {
         return callback(err);
       }
