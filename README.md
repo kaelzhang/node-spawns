@@ -1,6 +1,7 @@
 # spawns [![NPM version](https://badge.fury.io/js/spawns.png)](http://badge.fury.io/js/spawns) [![Build Status](https://travis-ci.org/kaelzhang/node-spawns.png?branch=master)](https://travis-ci.org/kaelzhang/node-spawns) [![Dependency Status](https://gemnasium.com/kaelzhang/node-spawns.png)](https://gemnasium.com/kaelzhang/node-spawns)
 
-Spawns could run piped commands(what's comming) or a list of commands and also supports to spawn a custom source file in Windows.
+Spawns could run piped commands or a list of commands on both widnows and linux.
+Spawns supports to execute commands with the similar API of `child_process.spawn`, using `options.stdio`, streamed `stdin` and `stdout`.
 
 # Synopsis
 
@@ -11,7 +12,7 @@ spawns(commands, options);
 ```js
 spawns(['npm install', 'grunt'], {
 	stdio: 'inherit'
-	
+
 }).on('close', function(code, signal){
 	console.log('close with code:', code );
 });
@@ -42,12 +43,6 @@ type `Object`
 `options` is the same argument as `require('child_process').spawn`.
 
 ## Events
-
-### Event: 'spawn'
-
-- command `String` the command string
-
-This event is emitted when each command is about to be spawned.
 
 ### Event: 'close'
 

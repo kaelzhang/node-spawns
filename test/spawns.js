@@ -44,6 +44,6 @@ describe("cross-platform compatibility", function(){
     ]).on('close', function (code) {
       expect(code).not.to.equal(0);
       done();
-    })
+    });
   });
 });
