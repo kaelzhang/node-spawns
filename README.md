@@ -1,6 +1,6 @@
 # spawns [![NPM version](https://badge.fury.io/js/spawns.png)](http://badge.fury.io/js/spawns) [![Build Status](https://travis-ci.org/kaelzhang/node-spawns.png?branch=master)](https://travis-ci.org/kaelzhang/node-spawns) [![Dependency Status](https://gemnasium.com/kaelzhang/node-spawns.png)](https://gemnasium.com/kaelzhang/node-spawns)
 
-Spawns could run piped commands(what's comming) or a list of commands. 
+Spawns could run piped commands(what's comming) or a list of commands and also supports to spawn a custom source file in Windows.
 
 # Synopsis
 

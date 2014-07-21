@@ -1,6 +1,6 @@
 {
   "name": "spawns",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Spawns could run a list of commands or piped commands.",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,11 @@
     "spawns",
     "validator",
     "validate",
-    "setter"
+    "setter",
+    "windows",
+    "windows-compatible",
+    "exec",
+    "piped"
   ],
   "engines": {
     "node": ">=0.8.0"
