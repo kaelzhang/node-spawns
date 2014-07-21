@@ -109,38 +109,40 @@ Spawns.prototype._parse_piped = function(command) {
 };
 
 
+var is_windows = process.platform === 'win32';
+
 // @param {string} command
 Spawns.prototype._parse_command = function(command) {
+  // // #4,
+  // // We should reserve quoted spaces, so never use `/\s+/`
+  // var slices = command.split(/\s/).map(function(slice) {
+  //   return slice.trim();
+  // });
 
-  // #4,
-  // We should reserve quoted spaces, so never use `/\s+/`
-  var slices = command.split(/\s/).map(function(slice) {
-    return slice.trim();
-  });
+  // var name
+  // if (this._is_windows_spawn(slices)) {
+  //   name = '/c/cmd';
+  // } else {
+  //   name = slices.shift();
+  // }
 
-  var name
-  if (this._is_windows_spawn(slices)) {
-    name = '/c/cmd';
-  } else {
-    name = slices.shift();
-  }
+  // return {
+  //   name: name,
+  //   args: this._balance_args(slices),
+  //   origin: command
+  // };
 
-  return {
-    name: name,
-    args: this._balance_args(slices),
-    origin: command
-  };
-};
-
-
-var is_windows = process.platform === 'win32';
-// Checkes if the current command is a custom source file
-Spawns.prototype._is_windows_spawn = function(slices) {
-  if (!is_windows) {
-    return false;
-  }
-
-  return slices[0] && ~slices[0].indexOf(node_path.sep);
+  return is_windows
+    ? {
+      name: 'cmd',
+      args: ['/c', command],
+      origin: command
+    }
+    : {
+      name: 'sh',
+      args: ['-c', command],
+      origin: command
+    };
 };
 
 
