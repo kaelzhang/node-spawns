@@ -39,7 +39,7 @@ describe("spawns", function() {
 
 describe("cross-platform compatibility", function(){
   it("spawn a custom command", function(done){
-    var path = node_path.join(__dirname, './fixtures/command.js');
+    var path = node_path.join(__dirname, './fixtures/command');
     spawns([
       path + ' --arg "a b c d"'
     ]).on('close', function (code) {
