@@ -4,6 +4,8 @@ var expect = require('chai').expect;
 var spawns = require('../');
 var node_path = require('path');
 var fs = require('fs');
+var mix = require('mix2');
+
 
 describe("spawns", function() {
   it("normal", function(done) {
@@ -16,15 +18,13 @@ describe("spawns", function() {
     });
   });
 
-  var proto = spawns.Spawns.prototype;
-
   // #4
   var command = 'command -a "a \'b\' c" -b \'a "b" c\' -c'
     + ' "a b" -d \'a   b\' -e "a" -f \'a\' -g "a b c'
   it("double quoted: " + command, function(){
     var slices = command.split(/\s/);
     slices.shift();
-    var args = proto._balance_args(slices);
+    var args = spawns._balance_args(slices);
     expect(args).to.deep.equal([
       '-a', "a 'b' c", 
       '-b', 'a "b" c', 
@@ -41,20 +41,49 @@ describe("spawns", function() {
 describe("cross-platform compatibility", function(){
   it("spawn a custom command", function(done){
     var path = node_path.join(__dirname, './fixtures/command.js');
-    prepare_cmd(path, function (err, file) {
+    prepare_cmd(path, function (err, file, dir) {
       expect(err).to.equal(null);
+
+      var env = {};
+      mix(env, process.env);
+      env._CWD = dir;
 
       spawns([
         file + ' --arg "a b c d"'
-      ]).on('close', function (code) {
+      ], {
+        env: env
+
+      }).on('close', function (code) {
         expect(code).not.to.equal(0);
-        var file = node_path.join(__dirname, 'fixtures', 'arg.tmp')
+        var file = node_path.join(dir, 'arg.tmp')
         var content = fs.readFileSync(file);
         expect(content.toString()).to.equal('a b c d');
         done();
       });
     });
-    
+  });
+
+  it("spawn with arguments", function(done){
+    var path = node_path.join(__dirname, './fixtures/command.js');
+    prepare_cmd(path, function (err, file, dir) {
+      expect(err).to.equal(null);
+
+      var env = {};
+      mix(env, process.env);
+      env._CWD = dir;
+
+      spawns(file, ['--arg', 'a b c d'], {
+        stdio: 'inherit',
+        env: env
+      })
+      .on('close', function (code) {
+        expect(code).not.to.equal(0);
+        var file = node_path.join(dir, 'arg.tmp');
+        var content = fs.readFileSync(file);
+        expect(content.toString()).to.equal('a b c d');
+        done();
+      });
+    });
   });
 });
 
@@ -75,7 +104,10 @@ function prepare_cmd (path, callback) {
     });
   }
 
-  var content = fs.readFileSync(path);
-  fs.writeFileSync(to, content);
-  callback(null, to);
+  fs.symlinkSync(path, to);
+  // var content = fs.readFileSync(path).toString();
+  // console.log(content, to)
+  // fs.writeFileSync(to, content);
+  // fs.chmodSync(to, 755);
+  callback(null, to, dir);
 };
