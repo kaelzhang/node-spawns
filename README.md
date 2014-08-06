@@ -9,6 +9,7 @@ Spawns supports to execute commands with the similar API of `child_process.spawn
 
 ```js
 spawns(commands, options);
+spawns(command, [args], options);
 ```
 
 ```js
@@ -28,7 +29,7 @@ npm install spawns --save
 
 # Usage
 
-`spawns(commands, options)` returns a `EventEmitter`.
+`spawns(...)` returns a `EventEmitter`.
 
 ## Arguments
 
