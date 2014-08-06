@@ -1,7 +1,7 @@
 {
   "name": "spawns",
-  "version": "0.2.9",
-  "description": "Spawns could run a list of commands or piped commands.",
+  "version": "0.3.0",
+  "description": "Spawns could run a list of commands on both widnows and linux.",
   "main": "index.js",
   "scripts": {
     "test": "sh test.sh"
