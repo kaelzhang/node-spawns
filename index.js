@@ -10,25 +10,29 @@ var mix = require('mix2');
 
 module.exports = spawns;
 
-function spawns(commands, options) {
+function spawns(command, args, options) {
+  var commands;
+  if (arguments.length === 3) {
+    command = spawns._parse_command(command);
+    command.args = command.args.concat(args || []);
+    command.origin = command.name + ' ' + spawns._join_args(command.args);
+    commands = [command];
+
+  } else {
+    commands = util.isArray(command)
+      ? command
+      : [command];
+
+    commands = commands.map(spawns._parse_command);
+  }
+
   return new Spawns(commands, options || {});
 }
 spawns.Spawns = Spawns;
 
 // @param {Array.<string>} commands 
 function Spawns(commands, options) {
-  if (!util.isArray(commands)) {
-    commands = [commands];
-  }
-
-  // [
-  //     // single command
-  //     [command],
-
-  //     // piped commands
-  //     [command, command]
-  // ]
-  this._commands = commands || [];
+  this._commands = commands;
   this._options = options;
   var self = this;
 
@@ -91,21 +95,20 @@ Spawns.prototype._spawn = function(command, done) {
 
 var is_windows = process.platform === 'win32';
 
-Spawns.prototype._get_spawn = function(command) {
+Spawns.prototype._get_spawn = function(parsed) {
   if (!is_windows) {
-    return spawn('sh', ['-c', command], this._options);
+    return spawn('sh', ['-c', parsed.origin], this._options);
   }
 
   var options = mix({
     windowsVerbatimArguments: true
   }, this._options);
 
-  var parsed = this._parse_command(command);
   return win_spawn(parsed.name, parsed.args, options);
 };
 
 
-Spawns.prototype._parse_command = function(command) {
+spawns._parse_command = function(command) {
   // #4,
   // We should reserve quoted spaces, so never use `/\s+/`
   var slices = command.split(/\s/).map(function(slice) {
@@ -116,7 +119,7 @@ Spawns.prototype._parse_command = function(command) {
 
   return {
     name: name,
-    args: this._balance_args(slices),
+    args: spawns._balance_args(slices),
     origin: command
   };
 };
@@ -139,7 +142,7 @@ function trim (str) {
 
 // #4,
 // Deal with quotes
-Spawns.prototype._balance_args = function(slices) {
+spawns._balance_args = function(slices) {
   var double_quoted;
   var single_quoted;
   var stack = [];
@@ -191,4 +194,20 @@ Spawns.prototype._balance_args = function(slices) {
 
     return prev;
   }, []);
+};
+
+
+spawns._join_args = function (args) {
+  return args.map(function (arg) {
+    if (!arg) {
+      return;
+    }
+
+    return /\s+/.test(arg)
+      // a b c -> 'a b c'
+      // a 'b' -> 'a \'b\''
+      ? "'" + arg.replace("'", "\\'") + "'"
+      : arg;
+
+  }).join(' ');
 };
