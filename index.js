@@ -22,6 +22,7 @@ function spawns(command, args, options) {
     commands = util.isArray(command)
       ? command
       : [command];
+    options = args;
 
     commands = commands.map(spawns._parse_command);
   }
