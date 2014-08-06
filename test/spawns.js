@@ -18,6 +18,16 @@ describe("spawns", function() {
     });
   });
 
+  it("exit event", function(done){
+    spawns(['ls', 'ls'], {
+      stdio: 'inherit'
+
+    }).on('exit', function(code) {
+      expect(code).to.equal(0);
+      done();
+    });
+  });
+
   // #4
   var command = 'command -a "a \'b\' c" -b \'a "b" c\' -c'
     + ' "a b" -d \'a   b\' -e "a" -f \'a\' -g "a b c'
