@@ -57,14 +57,21 @@ util.inherits(Spawns, EE);
 
 Spawns.prototype._process = function() {
   var self = this;
-  async.series(this._commands.map(function(command) {
-    return function(done) {
-      self._spawn(command, done);
-    };
-  }), function(code, status) {
-    var last = status.pop();
-    self.emit('close', last[0], last[1]);
-  });
+  var data;
+  async.eachSeries(this._commands, function (command, done) {
+    self._spawn(command, function (err, d) {
+      data = d;
+      done(err);
+    });
+
+  }, function (err) {
+    if (err && err instanceof Error) {
+      return;
+    }
+
+    this.emit('exit', data.code, data.signal);
+    this.emit('close', data.code, data.signal);
+  }.bind(this));
 };
 
 
@@ -73,12 +80,22 @@ Spawns.prototype._process = function() {
 //      name:
 //      args:     
 // }
-Spawns.prototype._spawn = function(command, done) {
+Spawns.prototype._spawn = function(command, callback) {
   var child = this._get_spawn(command);
   var self = this;
 
+  var called = false;
+  function cb (err, data) {
+    if (called) {
+      return;
+    }
+    called = true;
+    callback(err, data);
+  }
+
   child.on('error', function(err) {
     self.emit('error', err);
+    cb(err);
   });
 
   child.on('exit', function(code, signal) {
@@ -87,7 +104,10 @@ Spawns.prototype._spawn = function(command, done) {
 
   child.on('close', function(code, signal) {
     self.emit('child_close', code, signal);
-    done(code, code, signal);
+    cb(code, {
+      code: code,
+      signal: signal
+    });
   });
 
   return child;
