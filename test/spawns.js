@@ -27,24 +27,6 @@ describe("spawns", function() {
       done();
     });
   });
-
-  // #4
-  var command = 'command -a "a \'b\' c" -b \'a "b" c\' -c'
-    + ' "a b" -d \'a   b\' -e "a" -f \'a\' -g "a b c'
-  it("double quoted: " + command, function(){
-    var slices = command.split(/\s/);
-    slices.shift();
-    var args = spawns._balance_args(slices);
-    expect(args).to.deep.equal([
-      '-a', "a 'b' c", 
-      '-b', 'a "b" c', 
-      '-c', 'a b',
-      '-d', "a   b",
-      '-e', 'a',
-      '-f', "a",
-      '-g', '"a', 'b', 'c'
-    ]);
-  });
 });
 
 
