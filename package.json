@@ -1,6 +1,6 @@
 {
   "name": "spawns",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Spawns could run a list of commands on both widnows and linux.",
   "main": "index.js",
   "scripts": {
@@ -38,8 +38,8 @@
   },
   "dependencies": {
     "argv-split": "^0.1.1",
-    "async": "^1.4.0",
-    "mix2": "^0.1.0",
+    "async": "^1.5.0",
+    "mix2": "^1.0.1",
     "win-spawn": "^2.0.0"
   }
 }

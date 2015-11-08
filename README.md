@@ -1,4 +1,8 @@
-# spawns [![NPM version](https://badge.fury.io/js/spawns.png)](http://badge.fury.io/js/spawns) [![Build Status](https://travis-ci.org/kaelzhang/node-spawns.png?branch=master)](https://travis-ci.org/kaelzhang/node-spawns) [![Dependency Status](https://gemnasium.com/kaelzhang/node-spawns.png)](https://gemnasium.com/kaelzhang/node-spawns)
+[![Build Status](https://travis-ci.org/kaelzhang/node-spawns.png?branch=master)](https://travis-ci.org/kaelzhang/node-spawns)
+[![NPM version](https://badge.fury.io/js/spawns.png)](http://badge.fury.io/js/spawns)
+[![Dependency Status](https://gemnasium.com/kaelzhang/node-spawns.png)](https://gemnasium.com/kaelzhang/node-spawns)
+
+# spawns
 
 I really hate to seperate the command and arguments when using `spawn`, and I hate to spawn things on Windows, so I made `spawns`.
 
